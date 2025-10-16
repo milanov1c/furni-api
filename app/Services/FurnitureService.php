@@ -15,7 +15,7 @@ class FurnitureService implements FurnitureServiceContract
 
     }
 
-    public function find(int $id): ?Furniture
+    public function find(int $id): ?Model
     {
         return $this->repository->find($id);
     }
@@ -24,13 +24,12 @@ class FurnitureService implements FurnitureServiceContract
     {
         return $this->repository->findAll();
     }
-//je l treba ovde da pise create(array $data=[])
-    public function create(array $data): Furniture
+    public function create(array $data): Model
     {
         return $this->repository->create($data);
     }
 
-    public function update(int $id, array $data): Furniture
+    public function update(int $id, array $data): Model
     {
         return $this->repository->update($id, $data);
     }
@@ -40,7 +39,7 @@ class FurnitureService implements FurnitureServiceContract
         return $this->repository->delete($id);
     }
 
-    public function findWithRelationsDetailed(int $id): ?Furniture
+    public function findWithRelationsDetailed(int $id): ? Furniture
     {
         return $this->repository->findWithRelationsDetailed($id);
     }

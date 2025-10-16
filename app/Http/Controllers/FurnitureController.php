@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Furniture;
 use App\Services\FurnitureService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;

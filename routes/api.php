@@ -20,3 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('brands',\App\Http\Controllers\BrandController::class);
 
 Route::apiResource('furnitures',\App\Http\Controllers\FurnitureController::class);
+
+Route::apiResource('users',\App\Http\Controllers\UserController::class);
+
+Route::post('/login',[\App\Http\Controllers\AuthController::class, 'login']);

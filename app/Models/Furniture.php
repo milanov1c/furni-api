@@ -31,4 +31,9 @@ class Furniture extends Model
     {
         return $this->belongsToMany(Color::class, 'furniture_colors')->withPivot('quantity');
     }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
 }
