@@ -2,131 +2,68 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Nette\Schema\ValidationException;
+use App\Services\BrandService;
 
 class BrandController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected BrandService $service;
+
+    public function __construct(BrandService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index()
     {
-        return Brand::all();
+        $brands = $this->service->findAll();
+        return response()->json($brands);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show($id)
     {
-
+        $brand = $this->service->find($id);
+        if (!$brand) {
+            return response()->json(['message' => 'Brand not found'], 404);
+        }
+        return response()->json($brand);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        try {
-            $data = $request->validate(['name' => 'required|unique:brands,name|string|min:3']);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
 
-            $brand = Brand::create($data);
+        $brand = $this->service->create($data);
+        return response()->json($brand, 201);
+    }
 
-            return response()->json([
-                'success' => true,
-                'data' => $brand,
-                'message' => 'Successfully created'
-            ], 201);
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error in database occurred: ' . $e->getMessage()
-            ], 400);
-
-        } catch (\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error occurred: ',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An unknown error occurred: ' . $e->getMessage()
-            ], 500);
+    public function update(Request $request, $id)
+    {
+        $brand = $this->service->find($id);
+        if (!$brand) {
+            return response()->json(['message' => 'Brand not found'], 404);
         }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $updated = $this->service->update($id, $data);
+        return response()->json($updated);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public
-    function show(string $id)
+    public function destroy($id)
     {
+        $deleted = $this->service->delete($id);
 
-        return Brand::findOrFail($id);
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public
-    function edit(string $id)
-    {
-
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public
-    function update(Request $request, string $id)
-    {
-        $brand = Brand::findOrFail($id);
-
-        try {
-            $data = $request->validate(['name' => 'required|unique:brands,name|string|min:3']);
-            $brand->update($data);
-            return response()->json([
-                'success' => true,
-                'data' => $brand,
-                'message' => 'Successfully created'
-            ], 200);
-
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error in database occurred: ' . $e->getMessage()
-            ], 400);
-
-        } catch (\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error occurred: ',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An unknown error occurred: ' . $e->getMessage()
-            ], 500);
+        if (!$deleted) {
+            return response()->json(['message' => 'Brand not found'], 404);
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public
-    function destroy(string $id)
-    {
-        $brand = Brand::findOrFail($id);
-        $brand->delete();
 
         return response()->json(['message' => 'Brand deleted']);
     }
+
+
 }

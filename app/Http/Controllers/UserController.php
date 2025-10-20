@@ -44,7 +44,14 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function showById(int $id):JsonResponse{
+        $user=$this->userService->find($id);
 
+        if(!$user){
+            return response()->json(['error'=>'User not found'],404);
+        }
+        return response()->json($user);
+    }
 
     public function destroy(string $id)
     {
@@ -55,4 +62,17 @@ class UserController extends Controller
         }
         return response()->json(['error'=>'Failed to delete user']);
     }
+
+    public function me(UserService $service)
+    {
+        return response()->json($service->getAuthenticatedUser());
+    }
+
+    public function update(Request $request, UserService $service)
+    {
+        return response()->json($service->updateUser($request->all()));
+    }
+
+
+
 }

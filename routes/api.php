@@ -15,12 +15,37 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->load('addresses');
 });
-Route::apiResource('brands',\App\Http\Controllers\BrandController::class);
+Route::apiResource('brands', \App\Http\Controllers\BrandController::class);
 
-Route::apiResource('furnitures',\App\Http\Controllers\FurnitureController::class);
+Route::apiResource('categories', \App\Http\Controllers\CategoryController::class);
 
-Route::apiResource('users',\App\Http\Controllers\UserController::class);
+Route::apiResource('furnitures', \App\Http\Controllers\FurnitureController::class);
 
-Route::post('/login',[\App\Http\Controllers\AuthController::class, 'login']);
+Route::apiResource('users', \App\Http\Controllers\UserController::class);
+
+Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('orders', \App\Http\Controllers\OrderController::class);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::put('/user', [\App\Http\Controllers\UserController::class, 'update']);
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/addresses/user', [\App\Http\Controllers\AddressController::class, 'userAddress']);
+    Route::post('/addresses', [\App\Http\Controllers\AddressController::class, 'store']);
+    Route::put('/addresses/{id}', [\App\Http\Controllers\AddressController::class, 'update']);
+});
+
+
+
+
+
+
+
+

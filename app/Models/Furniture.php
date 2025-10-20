@@ -4,18 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Furniture extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'furniture_name',
+        'name',
         'description',
         'price',
         'brand_id',
-        'category_id'
+        'category_id',
+        'created_at',
+        'updated_at'
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function brand()
     {
@@ -34,6 +39,13 @@ class Furniture extends Model
 
     public function images()
     {
-        return $this->hasMany(Image::class);
+        return $this->hasOne(Image::class)->where('is_main', true);
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_product')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }

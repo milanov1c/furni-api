@@ -8,4 +8,5 @@ interface UserRepositoryContract extends BaseContract
 {
     public function findByEmail(string $email): ?User;
 
+    public function findWithAddresses(int $id):?User;
 }

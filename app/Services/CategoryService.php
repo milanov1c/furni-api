@@ -2,36 +2,29 @@
 
 namespace App\Services;
 
-use App\Models\Category;
 use App\Repositories\CategoryRepository;
-use App\Repositories\Contracts\BaseContract;
-use App\Services\Contract\BaseServiceContract;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
-class CategoryService implements BaseServiceContract
+class CategoryService
 {
-    public function __construct(protected CategoryRepository $repository)
-    {
-
-    }
-
-    public function find(int $id): ?Model
-    {
-        return $this->repository->find($id);
-    }
+    public function __construct(protected CategoryRepository $repository) {}
 
     public function findAll(): Collection
     {
         return $this->repository->findAll();
     }
 
-    public function create(array $data): Model
+    public function find(int $id)
+    {
+        return $this->repository->find($id);
+    }
+
+    public function create(array $data)
     {
         return $this->repository->create($data);
     }
 
-    public function update(int $id, array $data): Model
+    public function update(int $id, array $data)
     {
         return $this->repository->update($id, $data);
     }

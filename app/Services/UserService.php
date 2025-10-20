@@ -60,4 +60,33 @@ class UserService implements UserServiceContract
 
         return $user->createToken('api_token')->plainTextToken;
     }
+
+    public function getAuthenticatedUser(): ?User
+    {
+        $user = auth()->user();
+        return $this->repository->findWithAddresses($user->id);
+    }
+
+    public function updateUser(array $data)
+    {
+        $user = auth()->user();
+
+        $user->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ]);
+
+        if (isset($data['addresses'])) {
+            foreach ($data['addresses'] as $addrData) {
+                if (isset($addrData['id'])) {
+                    $user->addresses()->where('id', $addrData['id'])->update($addrData);
+                } else {
+                    $user->addresses()->create($addrData);
+                }
+            }
+        }
+
+        return $user->load('addresses');
+    }
+
 }

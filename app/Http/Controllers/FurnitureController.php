@@ -30,34 +30,94 @@ class FurnitureController extends Controller
             return response()->json(['error' => 'Furniture not found'], 404);
         }
 
-        return response()->json($furniture);
+        ;
+
+        $flat = [
+            'id' => $furniture->id,
+            'name' => $furniture->name,
+            'description' => $furniture->description,
+            'price' => (float) $furniture->price,
+            'brand' => $furniture->brand?->name,
+            'category' => $furniture->category?->name,
+            'main_image' => $furniture->images()->first()->image_path,
+            'colors' => $furniture->colors->map(fn($c) => $c->name)->toArray(),
+        ];
+
+
+        return response()->json($flat);
     }
 
-    public function store(Request $request): JsonResponse
+
+    public function destroy(int $id): JsonResponse
+    {
+        $furniture = $this->furnitureService->find($id);
+        if (!$furniture) {
+            return response()->json(['error' => 'Furniture not found'], 404);
+        }
+
+        try {
+            $furniture->delete();
+            return response()->json(['message' => 'Furniture soft deleted successfully']);
+        } catch (\Exception $e) {
+            \Log::error('Furniture deletion failed: '.$e->getMessage());
+            return response()->json(['error' => 'Unable to delete furniture'], 500);
+        }
+    }
+
+    public function store(Request $request)
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'price' => 'required|numeric',
-            'category_id' => 'required|integer',
-            'brand_id' => 'required|integer',
+            'brand_id' => 'required|exists:brands,id',
+            'category_id' => 'required|exists:categories,id',
+            'main_image' => 'nullable|image|max:2048', // validacija fajla
         ]);
 
         $furniture = $this->furnitureService->create($data);
 
+        if ($request->hasFile('main_image')) {
+            $file = $request->file('main_image');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+
+            $file->move(public_path('images'), $filename);
+
+            $furniture->images()->create([
+                'image_path' => $filename,
+                'is_main' => 1,
+            ]);
+        }
+
         return response()->json($furniture, 201);
     }
 
-    public function destroy(int $id): JsonResponse
+    public function update(Request $request, $id)
     {
-        $deleted = $this->furnitureService->delete($id);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'brand_id' => 'required|exists:brands,id',
+            'category_id' => 'required|exists:categories,id',
+            'main_image' => 'nullable|image|max:2048',
+        ]);
 
-        if ($deleted) {
-            return response()->json(['message' => 'Furniture deleted successfully']);
+        $furniture = $this->furnitureService->update($id, $data);
+
+        if ($request->hasFile('main_image')) {
+            $file = $request->file('main_image');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('images'), $filename);
+
+
+            $furniture->images()->create([
+                'image_path' => $filename,
+                'is_main' => 1,
+            ]);
         }
 
-        return response()->json(['error' => 'Failed to delete furniture'], 400);
+        return response()->json($furniture);
     }
-
-
-
 }

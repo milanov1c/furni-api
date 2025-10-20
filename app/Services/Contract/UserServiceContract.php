@@ -9,4 +9,5 @@ interface UserServiceContract extends BaseContract
 {
 
     public function findByEmail(string $email): ?User;
+
 }

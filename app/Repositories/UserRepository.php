@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryContract;
+use Illuminate\Database\Eloquent\Model;
 
 class UserRepository extends BaseRepository implements UserRepositoryContract
 {
@@ -17,4 +18,10 @@ class UserRepository extends BaseRepository implements UserRepositoryContract
     {
         return $this->model->where('email', $email)->first();
     }
+
+
+    public function findWithAddresses(int $id):?User{
+        return $this->model->with('addresses')->find($id);
+    }
+
 }

@@ -16,10 +16,20 @@ final class FurnitureRepository extends BaseRepository implements FurnitureRepos
         parent::__construct($this->furniture);
     }
 
-    public function findWithRelationsDetailed(int $id): ?Furniture
+    public function findAll(): Collection
     {
-        return $this->model->with(['brand', 'category', 'colors'])->where('id', $id)->first();
+        return $this->model->with(['brand', 'category', 'colors', 'images'])
+            ->whereNull('deleted_at')
+            ->get();
     }
+
+    public function findWithRelationsDetailed(int $id) :?Furniture
+    {
+        return $this->model
+            ->with(['brand', 'category', 'colors', 'images' => fn($q) => $q->where('is_main', 1)])
+            ->find($id);
+    }
+
 
     public function findByCategory(int $categoryId): Collection
     {
